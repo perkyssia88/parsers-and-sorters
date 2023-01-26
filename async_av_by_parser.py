@@ -6,12 +6,10 @@ import json
 import csv
 import time
 
-data = []
 
-
-async def get_page(page_num):
+async def get_page(pages_num):
     async with ClientSession() as session:
-        url = f"https://cars.av.by/filter?brands[0][brand]=1039&brands[0][model]=2281&page={page_num}"
+        url = f"https://cars.av.by/filter?brands[0][brand]=1039&brands[0][model]=2281&page={pages_num}"
         ua = UserAgent()
         headers = {'User-Agent': ua.chrome}
         async with session.get(url=url, headers=headers) as response:
@@ -44,6 +42,18 @@ async def main(pages_num):
 
     for task in tasks:
         await task
+
+
+def get_pages_num():
+    while True:
+        try:
+            pages_num = int(input("Введите количество обрабатываемых страниц: "))
+            if pages_num > 20:
+                pages_num = 20
+            break
+        except ValueError:
+            print("Введено не числовое значение, попробуйте еще раз")
+    return pages_num
 
 
 def sort_data(data):
@@ -93,17 +103,10 @@ def write_files(data):
         json.dump(js_data, av_j, ensure_ascii=False)
 
 
-while True:
-    try:
-        pages_num = int(input("Введите количество обрабатываемых страниц: "))
-        if pages_num > 20:
-            pages_num = 20
-        break
-    except ValueError:
-        print("Введено не числовое значение, попробуйте еще раз")
+data = []
 
 print(time.strftime("%X"))
-asyncio.run(main(pages_num))
+asyncio.run(main(get_pages_num()))
 sort_data(data)
 write_files(data)
 print(time.strftime("%X"))
